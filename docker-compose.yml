@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  backend:
+    image: humbertoto22/proyectobase:latest
+    container_name: backend
+    ports:
+      - "8080:8080"  # Expone el puerto 8080 para acceder a la aplicación
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/${MYSQL_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    depends_on:
+      - mysql-db
+
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    ports:
+      - "3307:3306"  # Expone el puerto 3306 para acceder a MySQL
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: mysql-db  # Nombre del servicio MySQL
+      PMA_USER: ${MYSQL_USER}
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "8081:80"  # Acceso a phpMyAdmin en el puerto 8081
+    depends_on:
+      - mysql-db
+
+volumes:
+  mysql_data:
+    external: false
